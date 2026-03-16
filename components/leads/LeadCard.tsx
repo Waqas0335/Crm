@@ -1,4 +1,3 @@
-import StatusBadge from '@/components/ui/StatusBadge';
 import type { Lead } from '@/types';
 
 interface LeadCardProps {
@@ -7,28 +6,41 @@ interface LeadCardProps {
   onClick: () => void;
 }
 
-const STATUS_BORDER: Record<string, string> = {
-  Active: 'border-l-[3px] border-l-emerald-400',
-  Lost: 'border-l-[3px] border-l-red-400',
-  Pending: 'border-l-[3px] border-l-amber-400',
+const STATUS_STYLE: Record<string, { text: string; border: string }> = {
+  Active:                  { text: 'text-emerald-600', border: 'border-emerald-300' },
+  Lost:                    { text: 'text-red-500',     border: 'border-red-300'     },
+  Pending:                 { text: 'text-amber-500',   border: 'border-amber-300'   },
+  Fresh:                   { text: 'text-blue-500',    border: 'border-blue-300'    },
+  'Appointment Set':       { text: 'text-violet-600',  border: 'border-violet-300'  },
+  Rejected:                { text: 'text-rose-500',    border: 'border-rose-300'    },
+  Incomplete:              { text: 'text-orange-500',  border: 'border-orange-300'  },
+  'Application Submitted': { text: 'text-indigo-600',  border: 'border-indigo-300'  },
 };
 
-const STATUS_BG: Record<string, string> = {
-  Active: 'from-emerald-50/60 to-white',
-  Lost: 'from-red-50/40 to-white',
-  Pending: 'from-amber-50/40 to-white',
-};
+function Initials({ name }: { name: string }) {
+  const parts = name.trim().split(' ');
+  const ini = parts.length >= 2
+    ? `${parts[0][0]}${parts[parts.length - 1][0]}`
+    : parts[0].slice(0, 2);
+  return (
+    <div
+      className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center text-[12px] font-bold text-white"
+      style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}
+    >
+      {ini.toUpperCase()}
+    </div>
+  );
+}
 
 export default function LeadCard({ lead, selected, onClick }: LeadCardProps) {
-  const accentBorder = STATUS_BORDER[lead.status] ?? 'border-l-[3px] border-l-[var(--neo-border)]';
-  const bgGradient = STATUS_BG[lead.status] ?? 'from-slate-50 to-white';
+  const st = STATUS_STYLE[lead.status] ?? { text: 'text-slate-500', border: 'border-slate-300' };
 
   return (
     <div
-      className={`bg-gradient-to-r ${bgGradient} border rounded-xl cursor-pointer overflow-hidden transition-all duration-200 ${accentBorder}
+      className={`flex items-center px-4 py-3 w-full cursor-pointer transition-all duration-150 border-b border-slate-100
         ${selected
-          ? 'border-blue-400 shadow-[0_0_0_2px_rgba(59,130,246,.15),0_6px_20px_rgba(59,130,246,.14)]'
-          : 'border-slate-200/80 shadow-[0_1px_4px_rgba(0,0,0,.05)] hover:border-blue-300/70 hover:shadow-[0_6px_20px_rgba(59,130,246,.1)] hover:-translate-y-px'
+          ? 'bg-blue-50 border-l-[3px] border-l-blue-500'
+          : 'bg-white hover:bg-slate-50/80 border-l-[3px] border-l-transparent'
         }`}
       onClick={onClick}
       role="button"
@@ -36,32 +48,35 @@ export default function LeadCard({ lead, selected, onClick }: LeadCardProps) {
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
       aria-pressed={selected}
     >
-      <div className="flex items-center px-3 py-2.5 gap-3 w-full min-w-0">
+      {/* Avatar */}
+      <div className="w-[48px] shrink-0">
+        <Initials name={lead.name} />
+      </div>
 
-        {/* Badge — fixed width on all screens */}
-        <div className="shrink-0 min-w-0 sm:min-w-[160px]">
-          <StatusBadge status={lead.status} />
-        </div>
+      {/* Name — fixed width */}
+      <div className="w-[180px] shrink-0 min-w-0 pr-2">
+        <span className="text-[13px] font-semibold text-slate-800 truncate block leading-tight">{lead.name}</span>
+      </div>
 
-        {/* Name + BDR on same row */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      {/* BDR — fixed width */}
+      <div className="w-[130px] shrink-0 pr-2">
+        <span className="text-[11.5px] text-slate-400">
+          BDR: <span className="text-slate-600 font-medium">{lead.bdr ?? '—'}</span>
+        </span>
+      </div>
 
-          {/* Name column (fixed width) */}
-          <span className="w-[160px] text-[13px] font-bold text-slate-800 leading-tight truncate tracking-[-0.2px]">
-            {lead.name}
-          </span>
+      {/* Status — bordered pill, text color only, no bg */}
+      <div className="flex-1 min-w-0">
+        <span className={`inline-block text-[11px] font-semibold px-2.5 py-[3px] rounded-full border ${st.text} ${st.border} bg-transparent whitespace-nowrap`}>
+          {lead.status}
+        </span>
+      </div>
 
-          {/* BDR column */}
-          <span className="text-[10.5px] text-slate-400 font-medium shrink-0">
-            BDR: <span className="text-slate-600 font-semibold">{lead.bdr ?? '—'}</span>
-          </span>
-
-        </div>
-
-        {/* Open — far right */}
+      {/* Open */}
+      <div className="w-[70px] shrink-0 flex justify-end">
         <a
           href="#"
-          className="flex items-center gap-[4px] text-[10.5px] text-blue-500 font-semibold hover:text-blue-600 shrink-0 px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors"
+          className="flex items-center gap-[4px] text-[10.5px] text-blue-500 font-semibold hover:text-blue-600 shrink-0 px-2.5 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
           onClick={(e) => e.stopPropagation()}
         >
           Open
@@ -69,7 +84,6 @@ export default function LeadCard({ lead, selected, onClick }: LeadCardProps) {
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
           </svg>
         </a>
-
       </div>
     </div>
   );

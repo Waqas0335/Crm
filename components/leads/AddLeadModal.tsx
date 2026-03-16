@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Lead } from '@/types';
+import PhoneInput from '@/components/ui/PhoneInput';
 
 interface AddLeadModalProps {
   onClose: () => void;
@@ -42,6 +43,10 @@ export default function AddLeadModal({ onClose, onAdd }: AddLeadModalProps) {
     utmMedium: 'Manual',
     sales:     '',
   });
+  const [emailTouched, setEmailTouched] = useState(false);
+
+  const emailValid = !form.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const showEmailErr = emailTouched && form.email.length > 0 && !emailValid;
 
   function set(key: string, val: string) {
     setForm((p) => ({ ...p, [key]: val }));
@@ -79,7 +84,7 @@ export default function AddLeadModal({ onClose, onAdd }: AddLeadModalProps) {
       {/* Modal */}
       <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
         <div
-          className="pointer-events-auto w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl flex flex-col"
+          className="pointer-events-auto w-full max-w-lg max-h-[92vh] rounded-2xl flex flex-col overflow-hidden"
           style={{ background: 'linear-gradient(160deg, #ffffff 0%, #f5f7ff 100%)', boxShadow: '0 32px 80px rgba(37,99,235,0.18), 0 8px 32px rgba(0,0,0,0.1)' }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -113,7 +118,7 @@ export default function AddLeadModal({ onClose, onAdd }: AddLeadModalProps) {
           </div>
 
           {/* ── Body ── */}
-          <div className="px-6 py-5 flex flex-col gap-4">
+          <div className="px-6 py-5 flex flex-col gap-4 overflow-y-auto flex-1">
 
             {/* Status — visual pill selector */}
             <div>
@@ -154,11 +159,25 @@ export default function AddLeadModal({ onClose, onAdd }: AddLeadModalProps) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={lbl}>Email</label>
-                <input className={inp} type="email" placeholder="john@example.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
+                <input
+                  className={`${inp} ${showEmailErr ? '!border-red-300' : ''}`}
+                  type="email"
+                  placeholder="john@example.com"
+                  value={form.email}
+                  onChange={(e) => set('email', e.target.value)}
+                  onBlur={() => setEmailTouched(true)}
+                />
+                {showEmailErr && (
+                  <p className="text-[10.5px] text-red-500 font-medium mt-1">Invalid email address</p>
+                )}
               </div>
               <div>
                 <label className={lbl}>Cell Phone</label>
-                <input className={inp} placeholder="555 000 0000" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+                <PhoneInput
+                  value={form.phone}
+                  onChange={(val) => set('phone', val)}
+                  inputClassName={inp}
+                />
               </div>
             </div>
 

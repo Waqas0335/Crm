@@ -64,16 +64,9 @@ export default function DetailHeader({ lead, onClose, onUpdateLead }: DetailHead
 
       {/* Name block */}
       <div className="px-4 pt-4 pb-3 border-b border-slate-100">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-[18px] font-extrabold text-slate-800 tracking-[-0.4px] leading-tight">{lead.name}</h2>
-            {lead.phone && <a href={`tel:${lead.phone}`} className="text-[12.5px] text-blue-500 font-semibold mt-0.5 block hover:underline">{lead.phone}</a>}
-            {lead.email && <a href={`mailto:${lead.email}`} className="text-[11.5px] text-slate-400 hover:text-blue-500 transition-colors mt-0.5 block truncate">{lead.email}</a>}
-          </div>
-          <div className="w-11 h-11 rounded-xl shrink-0 flex items-center justify-center text-[14px] font-bold text-white" style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
-            {firstName?.[0]}{lastName?.[0] ?? ''}
-          </div>
-        </div>
+        <h2 className="text-[18px] font-extrabold text-slate-800 tracking-[-0.4px] leading-tight">{lead.name}</h2>
+        {lead.phone && <a href={`tel:${lead.phone}`} className="text-[12.5px] text-blue-500 font-semibold mt-0.5 block hover:underline">{lead.phone}</a>}
+        {lead.email && <a href={`mailto:${lead.email}`} className="text-[11.5px] text-slate-400 hover:text-blue-500 transition-colors mt-0.5 block truncate">{lead.email}</a>}
       </div>
 
       {/* Fields grid */}

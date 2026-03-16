@@ -3,10 +3,21 @@
 import { useState } from 'react';
 import ActivityFeed from './ActivityFeed';
 import SendMessageForm from './SendMessageForm';
-import type { ActivityTab, NoteType, ActivityFilters, ActivityItem } from '@/types';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
+import type { ActivityTab, NoteType, ActivityFilters, ActivityItem, ActivityType } from '@/types';
 
 const ACTIVITY_TABS: ActivityTab[] = ['Make note', 'Create event', 'Send text/email'];
-const NOTE_TYPES: NoteType[] = ['Verification note', 'Sales note'];
+
+const NOTE_TYPES: NoteType[] = [
+  'General note',
+  'Call note',
+  'Appointment note',
+  'Finance note',
+  'Sales note',
+  'Status change',
+];
+
 const FILTER_KEYS = ['text', 'notes', 'events', 'activity'] as const;
 
 const INPUT_CLS = 'bg-white border border-[var(--neo-border)] text-[var(--text-1)] text-[11.5px] px-[9px] py-[6px] rounded-[6px] w-full shadow-[0_1px_3px_rgba(0,0,0,.06)] outline-none focus:border-[var(--neo-accent)] focus:shadow-[0_0_0_3px_var(--accent-g)] placeholder:text-[var(--text-3)]';
@@ -15,18 +26,16 @@ const TEXTAREA_CLS = 'bg-white border border-[var(--neo-border)] text-[var(--tex
 const LABEL_CLS = 'text-[10px] text-[var(--text-3)] font-medium';
 const MK_BTN = 'px-[16px] py-[7px] bg-gradient-to-br from-[#2563eb] to-[#7c3aed] text-white text-[11.5px] font-bold rounded-[6px] shadow-[0_2px_8px_rgba(37,99,235,.3)] tracking-[0.3px] transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[.98]';
 
-type ActivityType = 'email' | 'followup' | 'status' | 'text' | 'esign' | 'note';
-
 const TYPE_ICON: Record<ActivityType, string> = { note: '📝', email: '✉️', text: '💬', followup: '📅', status: '🔄', esign: '✍️' };
 const TYPE_COLOR: Record<ActivityType, string> = { note: 'bg-slate-100 text-slate-500', email: 'bg-blue-50 text-blue-500', text: 'bg-cyan-50 text-cyan-600', followup: 'bg-orange-50 text-orange-500', status: 'bg-violet-50 text-violet-500', esign: 'bg-emerald-50 text-emerald-500' };
 
 export default function ActivityForm() {
   const [activeTab, setActiveTab]   = useState<ActivityTab>('Make note');
-  const [noteType, setNoteType]     = useState<NoteType>('Verification note');
+  const [noteType, setNoteType]     = useState<NoteType>('General note');
   const [noteText, setNoteText]     = useState('');
   const [eventType, setEventType]   = useState('');
-  const [eventDate, setEventDate]   = useState('');
-  const [eventTime, setEventTime]   = useState('');
+  const [eventDate, setEventDate]   = useState<Date | undefined>(undefined);
+  const [eventTime, setEventTime]   = useState<Date | undefined>(undefined);
   const [localNotes, setLocalNotes] = useState<ActivityItem[]>([]);
   const [filters, setFilters]       = useState<ActivityFilters>({ text: true, notes: true, events: true, activity: true });
 
@@ -50,12 +59,16 @@ export default function ActivityForm() {
         {ACTIVITY_TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-[11px] py-[5px] text-[10.5px] font-semibold rounded-[6px] border transition-all duration-150 cursor-pointer
-              ${activeTab === tab ? 'bg-[var(--accent-g)] border-[var(--neo-accent)] text-[var(--neo-accent)]' : 'bg-white border-[var(--neo-border)] text-[var(--text-2)] shadow-[0_1px_3px_rgba(0,0,0,.06)] hover:bg-[var(--surface-2)] hover:text-[var(--text-1)]'}`}>
+              ${activeTab === tab
+                ? 'bg-[var(--accent-g)] border-[var(--neo-accent)] text-[var(--neo-accent)]'
+                : 'bg-white border-[var(--neo-border)] text-[var(--text-2)] shadow-[0_1px_3px_rgba(0,0,0,.06)] hover:bg-[var(--surface-2)] hover:text-[var(--text-1)]'
+              }`}>
             {tab}
           </button>
         ))}
       </div>
 
+      {/* Make Note */}
       {activeTab === 'Make note' && (
         <div className="flex flex-col gap-[9px] mb-3">
           <div className="flex flex-col gap-[3px]">
@@ -72,6 +85,7 @@ export default function ActivityForm() {
         </div>
       )}
 
+      {/* Create Event */}
       {activeTab === 'Create event' && (
         <div className="flex flex-col gap-[9px] mb-3">
           <div className="flex flex-col gap-[3px]">
@@ -90,20 +104,24 @@ export default function ActivityForm() {
               </optgroup>
             </select>
           </div>
+
           <div className="flex flex-col gap-[3px]">
             <label className={LABEL_CLS}>Date</label>
-            <input type="date" className={INPUT_CLS} value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+            <DatePicker date={eventDate} onDateChange={setEventDate} />
           </div>
+
           <div className="flex flex-col gap-[3px]">
             <label className={LABEL_CLS}>Time</label>
-            <input type="time" className={INPUT_CLS} value={eventTime} onChange={(e) => setEventTime(e.target.value)} />
+            <TimePicker date={eventTime} setDate={setEventTime} />
           </div>
+
           <button className={MK_BTN}>Create Event</button>
         </div>
       )}
 
       {activeTab === 'Send text/email' && <SendMessageForm />}
 
+      {/* Filters */}
       <div className="flex items-center gap-[7px] py-[7px] border-b border-[var(--neo-border)] mb-[9px] flex-wrap">
         {FILTER_KEYS.map((key) => (
           <label key={key} className="flex items-center gap-[3px] cursor-pointer text-[10.5px] text-[var(--text-2)]">
@@ -117,6 +135,7 @@ export default function ActivityForm() {
         </button>
       </div>
 
+      {/* Local notes */}
       {localNotes.length > 0 && (
         <div className="flex flex-col gap-1 mb-2">
           {localNotes.map((note, i) => (

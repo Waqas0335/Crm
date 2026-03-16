@@ -22,14 +22,49 @@ function useIsMobile() {
   return isMobile;
 }
 
+function LeadTable({ leads, selectedLead, onSelect }: {
+  leads: Lead[];
+  selectedLead: Lead | null;
+  onSelect: (lead: Lead) => void;
+}) {
+  const lbl = "text-[10px] font-bold uppercase tracking-[0.7px] text-slate-400";
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-[0_1px_4px_rgba(0,0,0,.05)] overflow-hidden">
+      {/* Horizontal scroll wrapper */}
+      <div className="overflow-x-auto">
+        {/* Min width ensures columns never collapse */}
+        <div className="min-w-[560px]">
+
+          {/* Header */}
+          <div className="flex items-center px-4 py-2.5 bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-10 border-l-[3px] border-l-transparent">
+            <div className="w-[48px] shrink-0" />
+            <div className="w-[180px] shrink-0 pr-2"><span className={lbl}>Name</span></div>
+            <div className="w-[130px] shrink-0 pr-2"><span className={lbl}>BDR</span></div>
+            <div className="flex-1 min-w-[120px]"><span className={lbl}>Status</span></div>
+            <div className="w-[70px] shrink-0 text-left md:text-right"><span className={lbl}>Action</span></div>
+          </div>
+
+          {/* Rows */}
+          {leads.map((lead) => (
+            <LeadCard
+              key={lead.id}
+              lead={lead}
+              selected={selectedLead?.id === lead.id}
+              onClick={() => onSelect(lead)}
+            />
+          ))}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LeadsList({ leads = [], onUpdateLead }: LeadsListProps) {
   const isMobile = useIsMobile();
-
-  // Always start with null to match server render, then set on client
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   useEffect(() => {
-    // Only auto-select first lead on desktop after hydration
     if (!isMobile && leads.length > 0) {
       setSelectedLead(leads[0]);
     }
@@ -47,23 +82,12 @@ export default function LeadsList({ leads = [], onUpdateLead }: LeadsListProps) 
   if (isMobile) {
     return (
       <div className="flex flex-col flex-1 overflow-hidden">
-        <div className={`overflow-y-auto flex flex-col gap-2 p-2 bg-[var(--navy)] ${selectedLead ? 'max-h-[40vh]' : 'flex-1'}`}>
-          {leads.map((lead) => (
-            <LeadCard
-              key={lead.id}
-              lead={lead}
-              selected={selectedLead?.id === lead.id}
-              onClick={() => handleSelect(lead)}
-            />
-          ))}
+        <div className={`overflow-y-auto p-2 bg-[var(--navy)] ${selectedLead ? 'max-h-[45vh]' : 'flex-1'}`}>
+          <LeadTable leads={leads} selectedLead={selectedLead} onSelect={handleSelect} />
         </div>
         {selectedLead && (
           <div className="flex-1 overflow-y-auto border-t border-slate-200">
-            <DetailPanel
-              lead={selectedLead}
-              onClose={() => setSelectedLead(null)}
-              onUpdateLead={handleUpdateLead}
-            />
+            <DetailPanel lead={selectedLead} onClose={() => setSelectedLead(null)} onUpdateLead={handleUpdateLead} />
           </div>
         )}
       </div>
@@ -73,21 +97,10 @@ export default function LeadsList({ leads = [], onUpdateLead }: LeadsListProps) 
   return (
     <div className="body">
       <div className={`ll${selectedLead ? ' wp' : ''}`}>
-        {leads.map((lead) => (
-          <LeadCard
-            key={lead.id}
-            lead={lead}
-            selected={selectedLead?.id === lead.id}
-            onClick={() => handleSelect(lead)}
-          />
-        ))}
+        <LeadTable leads={leads} selectedLead={selectedLead} onSelect={handleSelect} />
       </div>
       {selectedLead && (
-        <DetailPanel
-          lead={selectedLead}
-          onClose={() => setSelectedLead(null)}
-          onUpdateLead={handleUpdateLead}
-        />
+        <DetailPanel lead={selectedLead} onClose={() => setSelectedLead(null)} onUpdateLead={handleUpdateLead} />
       )}
     </div>
   );
