@@ -1,5 +1,6 @@
 import { ACTIVITY_FEED } from '@/data/mockData';
 import type { ActivityType } from '@/types';
+import React from 'react';
 
 const ICON_CLS: Record<ActivityType, string> = {
   email:    'bg-blue-500/10 text-blue-600',
@@ -11,7 +12,7 @@ const ICON_CLS: Record<ActivityType, string> = {
 };
 
 function FeedIcon({ type }: { type: ActivityType }) {
-  const icons: Record<ActivityType, JSX.Element> = {
+  const icons: Record<ActivityType, React.ReactElement> = {
     email: (<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>),
     followup: (<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 4h18v18H3zM16 2v4M8 2v4M3 10h18" /></svg>),
     status: (<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9,11 12,14 22,4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>),
